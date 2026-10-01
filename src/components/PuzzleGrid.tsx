@@ -2,29 +2,16 @@
 
 import { useState, useCallback } from "react";
 import type { Puzzle, Cell } from "@/data/puzzles";
+import ObjectIcon from "@/components/ObjectIcons";
 
-const OBJECT_ICONS: Record<string, string> = {
-  chair: "🪑",
-  bed: "🛏️",
-  table: "🍽️",
-  plant: "🪴",
-  tv: "📺",
-  shelf: "📚",
-  window: "🪟",
-  rug: "🟫",
-  desk: "🖥️",
-  sofa: "🛋️",
-  lamp: "💡",
-  sink: "🚰",
-  stove: "🔥",
-  fridge: "🧊",
-  easel: "🎨",
-  piano: "🎹",
-  barrel: "🛢️",
-  crate: "📦",
-  box: "📦",
-  bench: "🪑",
-};
+function isLightColor(hex: string): boolean {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.substring(0, 2), 16) / 255;
+  const g = parseInt(h.substring(2, 4), 16) / 255;
+  const b = parseInt(h.substring(4, 6), 16) / 255;
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.5;
+}
 
 interface PuzzleGridProps {
   puzzle: Puzzle;
@@ -173,20 +160,31 @@ export default function PuzzleGrid({
               >
                 {roomLabel && (
                   <span
-                    className="absolute top-0 left-1 text-[8px] font-bold
-                      text-gray-700 uppercase tracking-wide z-20
-                      whitespace-nowrap pointer-events-none"
+                    className={`absolute top-0 left-1 text-[8px] font-bold
+                      uppercase tracking-wide z-20
+                      whitespace-nowrap pointer-events-none ${
+                        isLightColor(
+                          puzzle.roomColors[c.room] ?? "#ddd",
+                        )
+                          ? "text-gray-700"
+                          : "text-white/60"
+                      }`}
                   >
                     {roomLabel}
                   </span>
                 )}
 
                 {c.object && (
-                  <span
-                    className={`text-lg ${placed ? "opacity-30" : "opacity-60"} pointer-events-none`}
-                  >
-                    {OBJECT_ICONS[c.object.type] ?? "❓"}
-                  </span>
+                  <ObjectIcon
+                    type={c.object.type}
+                    className={`w-5 h-5 ${placed ? "opacity-30" : "opacity-70"} pointer-events-none ${
+                      isLightColor(
+                        puzzle.roomColors[c.room] ?? "#ddd",
+                      )
+                        ? "text-gray-800"
+                        : "text-white"
+                    }`}
+                  />
                 )}
 
                 {placed && (
